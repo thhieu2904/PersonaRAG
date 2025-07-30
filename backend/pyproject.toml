@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "backend"
+version = "0.1.0"
+package-mode = false
+description = "Backend for PersonaRAG project"
+authors = ["thhieu2904 <thhieu2904@gmail.com>"]
+
+# Khai báo nguồn riêng cho Pytorch
+[[tool.poetry.source]]
+name = "pytorch_cu121"
+url = "https://download.pytorch.org/whl/cu121"
+priority = "explicit"
+
+[tool.poetry.dependencies]
+python = "~3.11"
+# Web
+fastapi = "*"
+uvicorn = { extras = ["standard"], version = "*" }
+python-multipart = "*"
+aiohttp = "*"
+aiofiles = "*"
+
+# Core AI - Ghim phiên bản TTS
+TTS = "0.22.0"
+
+# Các thư viện khoa học đã được ghim vào phiên bản tương thích
+pandas = "1.5.3"
+librosa = "*"
+scipy = "*"
+
+# Khai báo torch và chỉ định rõ nó phải được lấy từ nguồn pytorch_cu121
+torch = { version = "2.1.2", source = "pytorch_cu121" }
+torchaudio = { version = "2.1.2", source = "pytorch_cu121" }
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
