@@ -16,7 +16,7 @@ class TTSService:
     sử dụng mô hình XTTSv2 cho khả năng voice cloning.
     """
     
-    def __init__(self, model_name: str = "tts_models/multilingual/multi-dataset/xtts_v2", device: str = "auto"):
+    def __init__(self, model_name: str = "thinhlpg/vixtts", device: str = "auto"):
         """
         Khởi tạo TTSService.
         

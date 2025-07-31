@@ -20,6 +20,7 @@ python-multipart = "*"
 aiohttp = "*"
 aiofiles = "*"
 
+transformers = "4.35.2"
 # Core AI - Ghim phiên bản TTS
 TTS = "0.22.0"
 

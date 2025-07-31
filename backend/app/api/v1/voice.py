@@ -28,8 +28,8 @@ router = APIRouter()
 class TTSRequest(BaseModel):
     text: str
     character_name: str
-    # THAY ĐỔI: Đổi ngôn ngữ mặc định sang "en"
-    language: str = "en"
+    # THAY ĐỔI: Đổi ngôn ngữ mặc định sang "vi"
+    language: str = "vi"
 
 class VoiceSetupResponse(BaseModel):
     character_name: str
