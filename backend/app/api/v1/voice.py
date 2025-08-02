@@ -68,7 +68,7 @@ async def setup_character_voice(
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=f"_{audio_file.filename}") as temp_file:
             shutil.copyfileobj(audio_file.file, temp_file)
-            temp_path = temp_file.name
+            temp_audio_path=temp_path
         
         result = audio_manager.setup_character_voice(
             character_name=character_name,
@@ -110,7 +110,7 @@ async def generate_speech(
         audio_path = audio_manager.generate_speech(
             text=request.text,
             character_name=request.character_name,
-            language=request.language
+            # language=request.language
         )
         
         return FileResponse(

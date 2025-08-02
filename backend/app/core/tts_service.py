@@ -1,180 +1,230 @@
-# backend/app/core/tts_service.py
-import torch
-import numpy as np
-from TTS.api import TTS
-from pathlib import Path
-import logging
-import json
+# backend/app/core/tts_service.py (Đã cập nhật)
 import os
-from typing import Optional, Dict, Any
+import sys
+import tempfile
+import logging
+from pathlib import Path
+
+# Thêm đường dẫn đến F5-TTS-Vietnamese-100h
+current_dir = Path(__file__).resolve().parent.parent.parent
+f5_tts_path = current_dir / "F5-TTS-Vietnamese-100h"
+sys.path.insert(0, str(f5_tts_path))
+
+# Import config
+from .tts_config import TTSConfig
+
+# Thư viện F5-TTS
+from huggingface_hub import login
+from cached_path import cached_path
+from vinorm import TTSnorm
+import soundfile as sf
+
+from f5_tts.model import DiT
+from f5_tts.infer.utils_infer import (
+    load_vocoder,
+    load_model,
+    preprocess_ref_audio_text,
+    infer_process,
+)
 
 logger = logging.getLogger(__name__)
 
 class TTSService:
     """
-    Service để quản lý việc chuyển đổi văn bản thành giọng nói (Text-to-Speech)
-    sử dụng mô hình XTTSv2 cho khả năng voice cloning.
+    Dịch vụ quản lý việc tải mô hình F5-TTS và tạo giọng nói.
     """
-    
-    def __init__(self, model_name: str = "thinhlpg/vixtts", device: str = "auto"):
-        """
-        Khởi tạo TTSService.
+    def __init__(self, temp_audio_dir: str = None):
+        """Khởi tạo TTS Service với cấu hình từ TTSConfig"""
+        # Sử dụng cấu hình từ TTSConfig
+        self.config = TTSConfig
+        self.temp_dir = temp_audio_dir or self.config.TEMP_AUDIO_DIR
+        self.temp_dir.mkdir(parents=True, exist_ok=True)
         
-        Args:
-            model_name: Tên hoặc đường dẫn đến mô hình TTS.
-            device: Thiết bị để chạy model ('cuda', 'cpu', hoặc 'auto').
-        """
-        self.device = self._get_device(device)
-        self.tts_model = None
-        self.voice_profiles: Dict[str, Dict[str, Any]] = {}
-        self.output_dir = Path("temp_audio")
-        self.output_dir.mkdir(exist_ok=True)
+        self.vocoder = None
+        self.model = None
+        self.available_characters: dict = {}
         
-        self._initialize_tts(model_name)
-    
-    def _get_device(self, device: str) -> str:
-        """Tự động phát hiện thiết bị phù hợp (CUDA hoặc CPU)."""
-        if device == "auto":
-            if torch.cuda.is_available():
-                logger.info("CUDA is available. Using GPU.")
-                return "cuda"
-            else:
-                logger.info("CUDA not available. Using CPU.")
-                return "cpu"
-        return device
-    
-    def _initialize_tts(self, model_name: str):
-        """Khởi tạo mô hình TTS từ Coqui-AI."""
+        # Tạo các thư mục cần thiết
+        self.config.create_directories()
+        
+        # Thiết lập giọng nói mặc định và tải mô hình
+        self._setup_default_voices()
+        self._load_models()
+
+    def _setup_default_voices(self):
+        """Thiết lập các giọng nói có sẵn từ thư mục audio_samples."""
+        audio_samples_dir = self.config.AUDIO_SAMPLES_DIR
+        
+        # Tìm các file audio có sẵn (không cần file .txt transcript)
+        if audio_samples_dir.exists():
+            for audio_file in audio_samples_dir.glob("*.wav"):
+                character_name = audio_file.stem  # Lấy tên file không có extension
+                self.available_characters[character_name] = str(audio_file)
+                logger.info(f"Đã thêm giọng nói: {character_name} -> {audio_file}")
+        
+        # Nếu không có file nào
+        if not self.available_characters:
+            logger.warning("Không tìm thấy file audio mẫu nào trong thư mục audio_samples.")
+            logger.info(f"Hãy thêm file .wav vào: {audio_samples_dir}")
+            logger.info("Note: Không cần file .txt transcript - mô hình sẽ tự động nhận diện.")
+
+    def _load_models(self):
+        """Tải mô hình F5-TTS và Vocoder khi khởi động."""
         try:
-            logger.info(f"Initializing TTS model '{model_name}' on {self.device}...")
-            self.tts_model = TTS(model_name).to(self.device)
-            logger.info("TTS model initialized successfully.")
-        except Exception as e:
-            logger.error(f"Fatal error initializing TTS model: {e}")
-            raise
-
-    def load_voice_profile(self, profile_path: str) -> Optional[Dict[str, Any]]:
-        """
-        Tải thông tin profile giọng nói từ một file JSON.
-        
-        Args:
-            profile_path: Đường dẫn đến file profile .json.
+            # Đảm bảo device consistency
+            device = self.config.get_device()
+            logger.info(f"Sử dụng device: {device}")
             
-        Returns:
-            Dictionary chứa thông tin profile nếu thành công, ngược lại là None.
-        """
-        try:
-            with open(profile_path, 'r', encoding='utf-8') as f:
-                profile = json.load(f)
-            
-            character_name = profile['character_name']
-            # Chỉ lưu profile, không lưu đường dẫn audio ở đây
-            self.voice_profiles[character_name] = profile
-            
-            logger.info(f"Loaded voice profile for '{character_name}' from {profile_path}")
-            return profile
-            
-        except Exception as e:
-            logger.error(f"Error loading voice profile from {profile_path}: {e}")
-            return None
-
-    def add_character_voice(self, character_name: str, sample_audio_path: str):
-        """
-        Thêm một giọng nói của nhân vật vào service để sẵn sàng cho việc cloning.
-        
-        Args:
-            character_name: Tên nhân vật.
-            sample_audio_path: Đường dẫn đến file audio mẫu.
-        """
-        if not os.path.exists(sample_audio_path):
-            logger.error(f"Sample audio file not found for '{character_name}': {sample_audio_path}")
-            return
-
-        # Đảm bảo profile của nhân vật đã tồn tại trước khi thêm giọng nói
-        if character_name not in self.voice_profiles:
-            self.voice_profiles[character_name] = {'character_name': character_name}
-
-        # Lưu đường dẫn audio mẫu vào profile
-        self.voice_profiles[character_name]['sample_audio_path'] = sample_audio_path
-        logger.info(f"Voice for '{character_name}' is ready for cloning using '{sample_audio_path}'.")
-
-    def synthesize_speech(
-        self, 
-        text: str, 
-        character_name: str, 
-        language: str = "vi",
-        speed: float = 1.0,
-        reference_audio_path: Optional[str] = None
-    ) -> str:
-        """
-        Tổng hợp giọng nói từ văn bản.
-        
-        Args:
-            text: Văn bản cần chuyển đổi.
-            character_name: Tên nhân vật có giọng nói cần sử dụng.
-            language: Mã ngôn ngữ (ví dụ: 'vi' cho tiếng Việt).
-            speed: Tốc độ đọc (1.0 là bình thường).
-            reference_audio_path: (Tùy chọn) Đường dẫn đến file audio để
-                                  "bắt chước" ngữ điệu. Nếu không có, sẽ dùng
-                                  giọng mẫu mặc định của nhân vật.
-                                  
-        Returns:
-            Đường dẫn đến file audio .wav đã được tạo.
-        """
-        if not self.tts_model:
-            raise RuntimeError("TTS model is not initialized.")
-            
-        try:
-            speaker_wav_path = reference_audio_path
-            
-            # Nếu không có audio tham chiếu động, dùng audio mẫu mặc định
-            if not speaker_wav_path or not os.path.exists(speaker_wav_path):
-                profile = self.voice_profiles.get(character_name)
-                if not profile:
-                    raise ValueError(f"Voice profile for '{character_name}' not found.")
-                
-                speaker_wav_path = profile.get('sample_audio_path')
-                if not speaker_wav_path or not os.path.exists(speaker_wav_path):
-                    raise FileNotFoundError(f"Default sample audio for '{character_name}' not found.")
-            
-            # Tạo file output duy nhất
-            output_filename = f"{character_name}_{hash(text + str(np.random.rand()))}.wav"
-            output_path = str(self.output_dir / output_filename)
-            
-            logger.info(f"Synthesizing speech for '{character_name}'...")
-            logger.info(f" - Text: '{text[:50]}...'")
-            logger.info(f" - Speaker WAV: '{speaker_wav_path}'")
-            
-            self.tts_model.tts_to_file(
-                text=text,
-                speaker_wav=speaker_wav_path,
-                language=language,
-                file_path=output_path,
-                speed=speed,
+            logger.info("Đang tải Vocoder...")
+            self.vocoder = load_vocoder(
+                vocoder_name=self.config.VOCODER_NAME,
+                device=device
             )
+            logger.info("Tải Vocoder thành công.")
+
+            logger.info("Đang tải mô hình F5-TTS...")
+            model_paths = self.config.get_model_paths()
             
-            logger.info(f"Speech synthesized successfully: {output_path}")
-            return output_path
-            
+            self.model = load_model(
+                DiT,
+                self.config.MODEL_CONFIG,
+                ckpt_path=model_paths["model_path"],
+                vocab_file=model_paths["vocab_path"],
+                device=device
+            )
+            logger.info("Tải mô hình F5-TTS thành công.")
         except Exception as e:
-            logger.error(f"Error synthesizing speech for '{character_name}': {e}")
+            logger.error(f"Lỗi nghiêm trọng khi tải mô hình AI: {e}", exc_info=True)
+            raise e
+
+    def _post_process_text(self, text: str) -> str:
+        """Hàm dọn dẹp văn bản theo app.py gốc."""
+        text = " " + text + " "
+        text = text.replace(" . . ", " . ")
+        text = " " + text + " "
+        text = text.replace(" .. ", " . ")
+        text = " " + text + " "
+        text = text.replace(" , , ", " , ")
+        text = " " + text + " "
+        text = text.replace(" ,, ", " , ")
+        text = " " + text + " "
+        text = text.replace('"', "")
+        return " ".join(text.split())
+
+    def _normalize_vietnamese_text(self, text: str) -> str:
+        """Chuẩn hóa văn bản tiếng Việt cho TTS với fix encoding."""
+        try:
+            # Fix encoding issue cho Windows
+            import sys
+            if sys.platform == "win32":
+                # Thử encode/decode để tránh lỗi charmap
+                try:
+                    text.encode('utf-8').decode('utf-8')
+                    normalized_text = TTSnorm(text)
+                    logger.info(f"Đã chuẩn hóa văn bản tiếng Việt: '{text}' -> '{normalized_text}'")
+                    return normalized_text
+                except (UnicodeError, UnicodeEncodeError, UnicodeDecodeError):
+                    logger.warning(f"TTSnorm encoding issue với Windows. Sử dụng văn bản gốc.")
+                    return text.strip()
+            else:
+                normalized_text = TTSnorm(text)
+                logger.info(f"Đã chuẩn hóa văn bản tiếng Việt: '{text}' -> '{normalized_text}'")
+                return normalized_text
+        except Exception as e:
+            logger.warning(f"Không thể chuẩn hóa văn bản với TTSnorm: {e}. Sử dụng văn bản gốc.")
+            return text.strip()
+
+    def add_character_voice(self, character_name: str, reference_audio_path: str):
+        """Lưu đường dẫn đến file audio mẫu cho một nhân vật."""
+        if not Path(reference_audio_path).exists():
+            logger.warning(f"File audio tham chiếu cho '{character_name}' không tồn tại tại: {reference_audio_path}")
+            return
+        self.available_characters[character_name] = reference_audio_path
+        logger.info(f"Đã thêm giọng nói tham chiếu cho nhân vật: '{character_name}'")
+
+    def get_available_characters(self) -> list[str]:
+        """Lấy danh sách các nhân vật đã có giọng nói."""
+        return list(self.available_characters.keys())
+
+    def synthesize_speech(self, text: str, character_name: str, speed: float = 1.0) -> str:
+        """
+        Tạo giọng nói từ văn bản, sử dụng audio mẫu của nhân vật.
+        Implementation giống app.py gốc với device consistency fix.
+        """
+        # Kiểm tra độ dài văn bản
+        if not self.config.validate_text_length(text):
+            raise ValueError(f"Văn bản quá dài. Tối đa {self.config.MAX_TEXT_LENGTH} từ hoặc {self.config.MAX_CHAR_LENGTH} ký tự.")
+        
+        if character_name not in self.available_characters:
+            raise ValueError(f"Nhân vật '{character_name}' chưa được thiết lập giọng nói.")
+        
+        reference_audio_path = self.available_characters[character_name]
+            
+        try:
+            # 1. Tiền xử lý âm thanh - GIỐNG APP.PY GỐC: truyền empty string cho ref_text
+            ref_audio, ref_text = preprocess_ref_audio_text(reference_audio_path, "")
+
+            # 2. Chuẩn hóa và xử lý văn bản - GIỐNG APP.PY GỐC
+            normalized_text = self._normalize_vietnamese_text(text)
+            processed_text = self._post_process_text(normalized_text)
+
+            # 3. Chạy mô hình để tạo giọng nói - GIỐNG APP.PY GỐC với device fix
+            logger.info(f"Bắt đầu tạo giọng nói cho '{character_name}' với văn bản: '{processed_text}'...")
+            
+            # Device consistency check
+            device = self.config.get_device()
+            logger.info(f"Inference device: {device}")
+            
+            try:
+                final_wave, final_sample_rate, spectrogram = infer_process(
+                    ref_audio, 
+                    ref_text.lower(), 
+                    processed_text.lower(), 
+                    self.model, 
+                    self.vocoder, 
+                    speed=speed
+                )
+            except RuntimeError as device_error:
+                if "device" in str(device_error).lower():
+                    logger.warning(f"Device error với {device}, thử lại với CPU...")
+                    # Fallback to CPU và update config
+                    self.config.set_device("cpu")
+                    import torch
+                    self.model = self.model.to("cpu")
+                    self.vocoder = self.vocoder.to("cpu") if hasattr(self.vocoder, 'to') else self.vocoder
+                    
+                    final_wave, final_sample_rate, spectrogram = infer_process(
+                        ref_audio, 
+                        ref_text.lower(), 
+                        processed_text.lower(), 
+                        self.model, 
+                        self.vocoder, 
+                        speed=speed
+                    )
+                    logger.info("Thành công với CPU fallback")
+                else:
+                    raise device_error
+            
+            # 4. Lưu file audio vào thư mục tạm
+            with tempfile.NamedTemporaryFile(
+                delete=False, 
+                suffix=".wav", 
+                dir=self.temp_dir,
+                prefix=f"{character_name}_"
+            ) as tmp_file:
+                output_path = tmp_file.name
+                sf.write(output_path, final_wave, final_sample_rate)
+            
+            logger.info(f"Đã tạo thành công file audio tại: {output_path}")
+            return output_path
+
+        except Exception as e:
+            logger.error(f"Lỗi khi tạo giọng nói cho '{character_name}': {e}", exc_info=True)
             raise
 
-    def get_available_characters(self) -> list:
-        """Lấy danh sách các nhân vật đã sẵn sàng để tạo giọng nói."""
-        return [
-            name for name, profile in self.voice_profiles.items() 
-            if 'sample_audio_path' in profile and os.path.exists(profile['sample_audio_path'])
-        ]
-
-    def cleanup_temp_files(self, keep_recent: int = 20):
-        """Dọn dẹp các file audio tạm thời đã cũ."""
-        try:
-            audio_files = sorted(self.output_dir.glob("*.wav"), key=os.path.getmtime)
-            files_to_delete = audio_files[:-keep_recent]
-            
-            for file_path in files_to_delete:
-                file_path.unlink()
-                logger.debug(f"Deleted old audio file: {file_path}")
-        except Exception as e:
-            logger.error(f"Error during temp file cleanup: {e}")
+    def cleanup_temp_files(self):
+        """Xóa tất cả các file trong thư mục audio tạm."""
+        logger.info(f"Đang dọn dẹp thư mục tạm: {self.temp_dir}")
+        for f in self.temp_dir.glob("*"):
+            if f.is_file():
+                os.unlink(f)
