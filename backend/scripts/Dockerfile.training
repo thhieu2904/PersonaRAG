@@ -1,0 +1,54 @@
+# Docker container cho fine-tuning F5-TTS models
+# Tối ưu hóa cho GPU training và reproducible builds
+
+FROM pytorch/pytorch:2.1.2-cuda11.8-devel-ubuntu20.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV CUDA_VISIBLE_DEVICES=0
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    build-essential \
+    libsndfile1 \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements và install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install additional packages for training
+RUN pip install --no-cache-dir \
+    tensorboard \
+    wandb \
+    torchaudio \
+    librosa
+
+# Copy application code
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p data/voices \
+    && mkdir -p models/tuned_models \
+    && mkdir -p logs
+
+# Set permissions
+RUN chmod +x scripts/fine_tune.py
+
+# Expose port for tensorboard (optional)
+EXPOSE 6006
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')" || exit 1
+
+# Default command
+CMD ["python", "scripts/fine_tune.py", "--help"]

@@ -1,0 +1,83 @@
+# backend/Dockerfile.production
+# Multi-stage Docker build cho production TTS service
+# Optimized cho size và performance
+
+# Stage 1: Base image với dependencies
+FROM pytorch/pytorch:2.1.2-cuda11.8-runtime-ubuntu20.04 as base
+
+# Environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PIP_NO_CACHE_DIR=1
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libsndfile1 \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Stage 2: Dependencies installation
+FROM base as dependencies
+
+WORKDIR /app
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install additional production dependencies
+RUN pip install --no-cache-dir \
+    uvicorn[standard] \
+    gunicorn \
+    python-multipart
+
+# Stage 3: Application
+FROM dependencies as application
+
+# Copy application code
+COPY app/ ./app/
+COPY f5_tts_source/ ./f5_tts_source/
+COPY scripts/ ./scripts/
+
+# Copy data structure (but not actual data files - will be mounted)
+COPY data/voices/ ./data/voices/
+
+# Create necessary directories
+RUN mkdir -p \
+    data/audio_samples \
+    models/base_models \
+    models/tuned_models \
+    temp_audio \
+    logs
+
+# Set permissions
+RUN chmod +x scripts/*.sh || true
+
+# Stage 4: Production image
+FROM application as production
+
+# Add non-root user for security
+RUN groupadd -r ttsuser && useradd -r -g ttsuser ttsuser
+
+# Set ownership
+RUN chown -R ttsuser:ttsuser /app
+
+# Switch to non-root user
+USER ttsuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Expose port
+EXPOSE 8000
+
+# Default command
+CMD ["uvicorn", "app.main_optimized:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

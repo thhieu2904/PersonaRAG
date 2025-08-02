@@ -4,155 +4,152 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List
 import logging
 from .voice_processor import VoiceProcessor
-from .tts_service import TTSService
+from .tts_service import TTSService # <-- Import service mới
 
 logger = logging.getLogger(__name__)
 
 class AudioManager:
     """
-    Lớp quản lý cấp cao, điều phối giữa việc xử lý giọng nói (VoiceProcessor)
-    và việc tạo giọng nói (TTSService).
+    Lớp quản lý cấp cao, điều phối việc lưu trữ file audio mẫu
+    và gọi TTSService để tạo giọng nói.
     """
     
     def __init__(self, 
                  sample_audio_dir: str = "data/audio_samples",
-                 voice_profiles_dir: str = "models/voice_profiles"):
-        """
-        Khởi tạo AudioManager.
-        
-        Args:
-            sample_audio_dir: Thư mục chứa các file audio mẫu (.wav).
-            voice_profiles_dir: Thư mục chứa các file profile giọng nói (.json).
-        """
-        # Xác định đường dẫn tuyệt đối dựa trên vị trí file này
+                 voices_dir: str = "data/voices"):
+        """Khởi tạo AudioManager."""
         base_path = Path(__file__).resolve().parent.parent.parent
         self.sample_audio_dir = base_path / sample_audio_dir
-        self.voice_profiles_dir = base_path / voice_profiles_dir
-        
-        # Đảm bảo các thư mục tồn tại
+        self.voices_dir = base_path / voices_dir  # New voices directory
         self.sample_audio_dir.mkdir(parents=True, exist_ok=True)
-        self.voice_profiles_dir.mkdir(parents=True, exist_ok=True)
+        self.voices_dir.mkdir(parents=True, exist_ok=True)
         
-        # Khởi tạo các service con
         self.voice_processor = VoiceProcessor()
-        self.tts_service = TTSService()
+        self.tts_service = TTSService() # <-- Khởi tạo service mới
         
-        # Tải và chuẩn bị các giọng nói đã có sẵn khi khởi động
-        self._load_and_prepare_existing_voices()
+        self._load_existing_voices()
     
-    def _load_and_prepare_existing_voices(self):
+    def _load_existing_voices(self):
         """
-        Tải các profile .json và chuẩn bị giọng nói tương ứng cho TTS service.
-        Đây là bước quan trọng khi khởi động server.
+        Tải các giọng nói từ cả audio_samples (legacy) và voices directory (new structure).
         """
-        logger.info("Loading and preparing existing character voices...")
-        profile_files = list(self.voice_profiles_dir.glob("*.json"))
+        logger.info("Đang tải các giọng nói tham chiếu đã có...")
         
-        if not profile_files:
-            logger.warning(f"No voice profiles found in {self.voice_profiles_dir}. "
-                           f"Use the API to set up new characters.")
-            return
-
-        for profile_path in profile_files:
-            try:
-                # 1. Tải thông tin từ file .json
-                profile = self.tts_service.load_voice_profile(str(profile_path))
-                if not profile:
-                    continue
-
-                character_name = profile['character_name']
-                
-                # 2. Tìm file audio mẫu tương ứng
-                sample_audio_path = self.sample_audio_dir / f"{character_name}.wav"
-                
-                # 3. Thêm giọng nói vào TTS service để sẵn sàng clone
-                if sample_audio_path.exists():
-                    self.tts_service.add_character_voice(character_name, str(sample_audio_path))
-                else:
-                    logger.warning(f"Sample audio for '{character_name}' not found at {sample_audio_path}")
-
-            except Exception as e:
-                logger.error(f"Failed to load or prepare voice from {profile_path}: {e}")
+        # 1. Load from legacy audio_samples directory
+        if self.sample_audio_dir.exists():
+            audio_files = list(self.sample_audio_dir.glob("*.wav"))
+            for audio_path in audio_files:
+                try:
+                    character_name = audio_path.stem
+                    self.tts_service.add_character_voice(character_name, str(audio_path))
+                    logger.info(f"Loaded legacy voice: {character_name}")
+                except Exception as e:
+                    logger.error(f"Lỗi khi tải giọng nói từ {audio_path}: {e}")
         
-        logger.info(f"Finished loading. {len(self.tts_service.get_available_characters())} characters are ready.")
+        # 2. Load from new voices directory structure
+        if self.voices_dir.exists():
+            for character_dir in self.voices_dir.iterdir():
+                if character_dir.is_dir():
+                    try:
+                        character_name = character_dir.name
+                        
+                        # Check for metadata
+                        metadata_file = character_dir / "metadata.json"
+                        if metadata_file.exists():
+                            # Load metadata to get reference audio
+                            import json
+                            with open(metadata_file, 'r', encoding='utf-8') as f:
+                                metadata = json.load(f)
+                            
+                            # Look for reference.wav or first sample
+                            ref_audio_path = None
+                            if (character_dir / "reference.wav").exists():
+                                ref_audio_path = character_dir / "reference.wav"
+                            elif metadata.get('samples'):
+                                first_sample = metadata['samples'][0]['file']
+                                ref_audio_path = character_dir / first_sample
+                            
+                            if ref_audio_path and ref_audio_path.exists():
+                                self.tts_service.add_character_voice(character_name, str(ref_audio_path))
+                                logger.info(f"Loaded voice from metadata: {character_name} -> {ref_audio_path.name}")
+                            else:
+                                logger.warning(f"No reference audio found for {character_name}")
+                        else:
+                            # Fallback: use first .wav file found
+                            audio_files = list(character_dir.glob("*.wav"))
+                            if audio_files:
+                                ref_audio_path = audio_files[0]
+                                self.tts_service.add_character_voice(character_name, str(ref_audio_path))
+                                logger.info(f"Loaded voice (fallback): {character_name} -> {ref_audio_path.name}")
+                    
+                    except Exception as e:
+                        logger.error(f"Lỗi khi tải giọng nói từ {character_dir}: {e}")
+        
+        # Log summary
+        total_characters = len(self.tts_service.get_available_characters())
+        if total_characters == 0:
+            logger.warning("Không tìm thấy file audio mẫu nào.")
+            logger.info(f"Hãy thêm file .wav vào: {self.sample_audio_dir} hoặc {self.voices_dir}")
+        else:
+            logger.info(f"Hoàn tất. {total_characters} nhân vật đã sẵn sàng.")
+            for char in self.tts_service.get_available_characters():
+                logger.info(f"  - {char}")
 
     def setup_character_voice(
         self, 
         character_name: str, 
-        sample_audio_path: str
+        temp_audio_path: str
     ) -> Dict[str, Any]:
         """
-        Thiết lập hoàn chỉnh giọng nói cho một nhân vật từ file audio mẫu.
-        Bao gồm: trích xuất đặc trưng, lưu profile, và chuẩn bị cho TTS.
-        
-        Args:
-            character_name: Tên nhân vật (duy nhất).
-            sample_audio_path: Đường dẫn đến file audio mẫu tạm thời.
-            
-        Returns:
-            Một dictionary chứa kết quả của quá trình thiết lập.
+        Thiết lập giọng nói cho một nhân vật bằng cách lưu lại file audio mẫu.
         """
         try:
-            logger.info(f"Setting up new voice for character: {character_name}")
+            logger.info(f"Thiết lập giọng nói mới cho nhân vật: {character_name}")
             
-            # 1. Trích xuất đặc trưng giọng nói
-            features = self.voice_processor.extract_voice_features(sample_audio_path)
-            
-            # 2. Lưu voice profile vào thư mục models
-            profile_path = self.voice_profiles_dir / f"{character_name}_profile.json"
-            self.voice_processor.save_voice_profile(
-                features=features,
-                output_path=str(profile_path),
-                character_name=character_name
-            )
-            
-            # 3. Sao chép file audio mẫu vào thư mục data để lưu trữ lâu dài
+            # 1. Định nghĩa đường dẫn lưu trữ lâu dài cho file audio
             permanent_audio_path = self.sample_audio_dir / f"{character_name}.wav"
-            Path(sample_audio_path).rename(permanent_audio_path)
-            logger.info(f"Saved sample audio to {permanent_audio_path}")
+            
+            # 2. Dùng VoiceProcessor để sao chép file từ temp sang vị trí chính thức
+            self.voice_processor.save_reference_audio(
+                source_path=temp_audio_path,
+                destination_path=str(permanent_audio_path)
+            )
 
-            # 4. Tải lại profile và chuẩn bị giọng nói cho TTS service
-            self.tts_service.load_voice_profile(str(profile_path))
+            # 3. Thêm giọng nói mới vào TTS service để sẵn sàng sử dụng
             self.tts_service.add_character_voice(character_name, str(permanent_audio_path))
             
             result = {
                 'status': 'success',
                 'character_name': character_name,
-                'profile_path': str(profile_path),
                 'sample_audio_path': str(permanent_audio_path),
             }
             
-            logger.info(f"Successfully set up voice for '{character_name}'.")
+            logger.info(f"Thiết lập thành công giọng nói cho '{character_name}'.")
             return result
             
         except Exception as e:
-            error_msg = f"Error setting up voice for '{character_name}': {e}"
+            error_msg = f"Lỗi khi thiết lập giọng nói cho '{character_name}': {e}"
             logger.error(error_msg, exc_info=True)
             return {'status': 'error', 'error': error_msg}
     
-    def generate_speech(
-        self, 
-        text: str, 
-        character_name: str, 
-        language: str = "vi",
-        reference_audio_path: Optional[str] = None
-    ) -> str:
+    def generate_speech(self, text: str, character_name: str) -> str:
         """
         Tạo file audio từ text với giọng của nhân vật.
-        
-        Returns:
-            Đường dẫn đến file audio đã được tạo.
         """
+        # Tham số language không còn cần thiết với F5-TTS-ViVoice
         return self.tts_service.synthesize_speech(
             text=text,
-            character_name=character_name,
-            language=language,
-            reference_audio_path=reference_audio_path
+            character_name=character_name
         )
     
     def get_character_info(self, character_name: str) -> Optional[Dict[str, Any]]:
-        """Lấy thông tin voice profile của một nhân vật."""
-        return self.tts_service.voice_profiles.get(character_name)
+        """Lấy thông tin về giọng nói của một nhân vật."""
+        if character_name in self.tts_service.available_characters:
+            return {
+                'character_name': character_name,
+                'sample_audio_path': self.tts_service.available_characters[character_name]
+            }
+        return None
     
     def list_available_characters(self) -> List[str]:
         """Lấy danh sách tất cả các nhân vật đã sẵn sàng để tạo giọng nói."""
@@ -161,4 +158,3 @@ class AudioManager:
     def cleanup(self):
         """Dọn dẹp các file audio tạm thời do TTS service tạo ra."""
         self.tts_service.cleanup_temp_files()
-

@@ -1,0 +1,59 @@
+# backend/scripts/docker-compose.training.yml
+version: "3.8"
+
+services:
+  tts-training:
+    build:
+      context: ..
+      dockerfile: scripts/Dockerfile.training
+    container_name: personarag-tts-training
+
+    # GPU access
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    # Environment variables
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - PYTHONUNBUFFERED=1
+      - WANDB_MODE=disabled # Disable wandb by default
+
+    # Volumes
+    volumes:
+      - ../data:/app/data
+      - ../models:/app/models
+      - ../logs:/app/logs
+      - ./fine_tune.py:/app/scripts/fine_tune.py
+
+    # Working directory
+    working_dir: /app
+
+    # Keep container running
+    stdin_open: true
+    tty: true
+
+    # Network
+    networks:
+      - tts-network
+
+  tensorboard:
+    image: tensorflow/tensorflow:latest
+    container_name: personarag-tensorboard
+    ports:
+      - "6006:6006"
+    volumes:
+      - ../logs:/logs
+    command: tensorboard --logdir=/logs --host=0.0.0.0
+    networks:
+      - tts-network
+    depends_on:
+      - tts-training
+
+networks:
+  tts-network:
+    driver: bridge

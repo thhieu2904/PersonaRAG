@@ -1,0 +1,3 @@
+[submodule "backend/f5_tts_source"]
+	path = backend/f5_tts_source
+	url = https://github.com/nguyenthienhy/F5-TTS-Vietnamese.git
