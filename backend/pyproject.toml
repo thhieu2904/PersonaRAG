@@ -84,6 +84,11 @@ funasr = "*"
 jiwer = "*"
 modelscope = "*"
 
+# --- Unsloth for LLM fine-tuning ---
+unsloth = {git = "https://github.com/unslothai/unsloth.git"}
+peft = ">=0.10.0"  # Parameter-Efficient Fine-Tuning for LoRA
+psutil = "^7.0.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

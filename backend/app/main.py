@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 # Thêm dòng này để trỏ đến mã nguồn F5-TTS
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "f5_tts_source" / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "F5-TTS-Vietnamese-100h"))
 
 # =================== BẮT ĐẦU ĐOẠN MÃ SỬA LỖI ENCODING ===================
 # Ghi đè hàm open() mặc định của Python để luôn ưu tiên UTF-8

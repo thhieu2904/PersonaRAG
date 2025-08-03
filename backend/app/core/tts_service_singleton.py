@@ -99,7 +99,7 @@ class TTSServiceSingleton:
                 from pathlib import Path
                 
                 # Add F5-TTS path
-                f5_tts_path = Path(__file__).parent.parent.parent / "f5_tts_source" / "src"
+                f5_tts_path = Path(__file__).parent.parent.parent / "F5-TTS-Vietnamese-100h"
                 if str(f5_tts_path) not in sys.path:
                     sys.path.insert(0, str(f5_tts_path))
                 
