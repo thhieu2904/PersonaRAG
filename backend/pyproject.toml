@@ -43,11 +43,14 @@ zhconv = "*"
 zhon = "*"
 
 # Thư viện khoa học dữ liệu
-numpy = "<2.3"
+numpy = "*"
 pandas = "^1.5.3"
 scipy = "*"
 torchdiffeq = "*"
 ema_pytorch = ">=0.5.2"
+# THÊM 2 DÒNG NÀY VÀO
+numba = ">=0.60.0"      # Yêu cầu numba phiên bản mới
+llvmlite = ">=0.43.0"   # Yêu cầu llvmlite phiên bản mới
 
 # Torch, Torchaudio & Torchvision (PHIÊN BẢN ĐÃ CẬP NHẬT)
 torch = { version = "2.3.1+cu121", source = "pytorch-cu121" }
@@ -67,7 +70,6 @@ click = "*"
 
 # --- GGUF Model Support ---
 # Llama.cpp Python bindings cho GGUF models
-llama-cpp-python = "*"
 
 # Configuration & Validation
 pydantic = "*"
