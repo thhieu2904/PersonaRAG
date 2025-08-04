@@ -39,6 +39,7 @@ import logging
 from app.api.v1 import chat
 from app.api.v1 import characters
 from app.api.v1 import voice # Đây là router voice chúng ta vừa tạo
+from app.api.v1 import chat_ai # Router chat AI với GGUF models
 
 # --- 2. Cấu hình logging ---
 logging.basicConfig(level=logging.INFO)
@@ -66,6 +67,7 @@ api_v1_router = APIRouter()
 api_v1_router.include_router(chat.router, prefix="/chat", tags=["Chat"])
 api_v1_router.include_router(characters.router, prefix="/characters", tags=["Characters"])
 api_v1_router.include_router(voice.router, prefix="/voice", tags=["Voice"])
+api_v1_router.include_router(chat_ai.router, prefix="/ai", tags=["Chat AI"])
 
 app.include_router(api_v1_router, prefix="/api/v1")
 

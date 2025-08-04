@@ -44,6 +44,11 @@ backend/test_output/
 # Models và logs
 backend/models/base_models/
 backend/models/tuned_models/
+backend/models/chat/
+backend/models/chat/*.gguf
+backend/models/chat/*.bin
+backend/models/chat/*.safetensors
+backend/models/voice_profiles/
 backend/logs/
 *.log
 
@@ -78,3 +83,42 @@ temp_*.py
 # Cache
 .cache/
 .pytest_cache/
+
+# Large files and dependencies
+*.gguf
+*.bin
+*.safetensors
+*.pkl
+*.h5
+*.pth
+*.pt
+*.model
+
+# Poetry lock file (optional - comment out if needed)
+# backend/poetry.lock
+
+# Batch files
+*.bat
+
+# Temporary and backup files
+temp_*
+*_temp.*
+backup_*
+*_backup.*
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker volumes
+docker-volumes/
+
+# Training data (large files)
+backend/data/training/*/
+!backend/data/training/*/.gitkeep
+
+# F5-TTS model files
+backend/F5-TTS-Vietnamese-100h/models/
+backend/F5-TTS-Vietnamese-100h/checkpoints/
+backend/F5-TTS-Vietnamese-100h/outputs/
