@@ -1,26 +1,27 @@
-# backend/app/core/tts_service.py (Đã cập nhật)
+# backend/app/core/tts_service.py (Sử dụng cloneVoice)
 import os
 import sys
 import tempfile
 import logging
 from pathlib import Path
 
-# Thêm đường dẫn đến F5-TTS-Vietnamese-100h
-current_dir = Path(__file__).resolve().parent.parent.parent
-f5_tts_path = current_dir / "F5-TTS-Vietnamese-100h"
-sys.path.insert(0, str(f5_tts_path))
+# Thêm đường dẫn đến cloneVoice
+current_dir = Path(__file__).resolve().parent.parent
+clonevoice_path = current_dir / "services" / "cloneVoice"
+sys.path.insert(0, str(clonevoice_path))
 
 # Import config
 from .tts_config import TTSConfig
 
-# Thư viện F5-TTS
+# Thư viện standard
 from huggingface_hub import login
 from cached_path import cached_path
 from vinorm import TTSnorm
 import soundfile as sf
 
-from f5_tts.model import DiT
-from f5_tts.infer.utils_infer import (
+# Import từ cloneVoice
+from model import DiT
+from infer.utils_infer import (
     load_vocoder,
     load_model,
     preprocess_ref_audio_text,

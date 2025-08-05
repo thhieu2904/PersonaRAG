@@ -6,7 +6,7 @@ import soundfile as sf
 import tqdm
 from cached_path import cached_path
 
-from f5_tts.infer.utils_infer import (
+from .infer.utils_infer import (
     hop_length,
     infer_process,
     load_model,
@@ -17,8 +17,8 @@ from f5_tts.infer.utils_infer import (
     transcribe,
     target_sample_rate,
 )
-from f5_tts.model import DiT, UNetT
-from f5_tts.model.utils import seed_everything
+from .model import DiT, UNetT
+from .model.utils import seed_everything
 
 
 class F5TTS:
