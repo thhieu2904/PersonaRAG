@@ -32,8 +32,8 @@ class ModelConfig:
     """Configuration for AI model"""
     model_name: str = "gaianet/Qwen2.5-7B-Instruct-GGUF"
     model_file: str = "Qwen2.5-7B-Instruct-Q4_K_M.gguf"  # Q4_K_M cho RTX 3060 6GB
-    context_length: int = 4096  # Giảm xuống để phù hợp với 6GB VRAM
-    max_tokens: int = 512
+    context_length: int = 2048  # Đủ cho RAG + conversation
+    max_tokens: int = 200  # Câu trả lời ngắn gọn, đủ ý
     temperature: float = 0.7
     top_p: float = 0.95
     top_k: int = 40

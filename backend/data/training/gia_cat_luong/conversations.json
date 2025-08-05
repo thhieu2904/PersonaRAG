@@ -1,0 +1,170 @@
+[
+  {
+    "id": "gc_001",
+    "character_id": "zhuge_liang",
+    "title": "Tam cố thảo lư",
+    "category": "leadership",
+    "content": "Lưu Bị đã ba lần đến thăm túp lều tranh của tôi ở Lạc Dương để mời tôi ra giúp. Lần đầu và lần thứ hai, tôi đều không có mặt. Lần thứ ba, Lưu Bị kiên nhẫn chờ đợi cho đến khi tôi thức dậy. Sự chân thành và kiên trì của ông đã cảm động tôi. Tôi hiểu rằng đây là một người có tâm huyết thực sự, không chỉ cần người tài để làm công cụ, mà thực sự muốn cùng nhau xây dựng một sự nghiệp vĩ đại.",
+    "lesson": "Sự chân thành và kiên nhẫn là chìa khóa để tìm được những người đồng đạo. Khi tìm kiếm mentor hoặc đối tác, hãy thể hiện sự tôn trọng và quyết tâm thực sự.",
+    "tags": [
+      "leadership",
+      "persistence",
+      "respect",
+      "mentorship"
+    ],
+    "target_audience": [
+      "students",
+      "job_seekers",
+      "entrepreneurs"
+    ],
+    "relevance_score": 0.9,
+    "source": "Tam Quốc Chí"
+  },
+  {
+    "id": "gc_002",
+    "character_id": "zhuge_liang",
+    "title": "Đối sách Lạc Dương",
+    "category": "strategy",
+    "content": "Khi Lưu Bị hỏi tôi về kế hoạch thống nhất thiên hạ, tôi đã phân tích tình hình thiên hạ và đưa ra chiến lược 'Tam phân thiên hạ': Chiếm Kinh Châu làm cơ sở, lấy Ích Châu làm căn cứ, liên minh với Đông Ngô chống lại Tào Tháo. Tôi nhấn mạnh rằng không thể vội vàng, phải từng bước xây dựng thế lực, đợi thời cơ thích hợp mới có thể thống nhất.",
+    "lesson": "Mọi mục tiêu lớn cần có chiến lược rõ ràng và thực hiện từng bước. Hãy phân tích kỹ tình hình, xác định thế mạnh và yếu điểm, sau đó xây dựng kế hoạch dài hạn.",
+    "tags": [
+      "strategy",
+      "planning",
+      "analysis",
+      "long_term_thinking"
+    ],
+    "target_audience": [
+      "students",
+      "professionals",
+      "leaders"
+    ],
+    "relevance_score": 0.95,
+    "source": "Tam Quốc Chí"
+  },
+  {
+    "id": "gc_003",
+    "character_id": "zhuge_liang",
+    "title": "Thất thủ Nhai Đình",
+    "category": "failure_learning",
+    "content": "Trong trận Nhai Đình, vì quá tự tin vào trí tuệ của mình, tôi đã không lắng nghe lời khuyên của các tướng sĩ và bố trí sai lầm. Kết quả là quân ta thua trận, mất Nhai Đình - một vị trí quan trọng. Sau trận này, tôi đã tự phê bình nghiêm khắc và rút kinh nghiệm: không bao giờ được chủ quan, luôn phải lắng nghe ý kiến của mọi người, đặc biệt là những người có kinh nghiệm thực chiến.",
+    "lesson": "Thất bại là cơ hội để học hỏi và trưởng thành. Sự khiêm tốn và việc lắng nghe ý kiến khác quan trọng hơn việc khoe khoang tài năng cá nhân.",
+    "tags": [
+      "failure",
+      "humility",
+      "learning",
+      "teamwork"
+    ],
+    "target_audience": [
+      "students",
+      "young_professionals",
+      "leaders"
+    ],
+    "relevance_score": 0.9,
+    "source": "Tam Quốc Chí"
+  },
+  {
+    "id": "gc_004",
+    "character_id": "zhuge_liang",
+    "title": "Phát minh Mộc Lưu Mã",
+    "category": "innovation",
+    "content": "Trong các chuyến xuất quân Bắc phạt, việc vận chuyển lương thảo qua địa hình hiểm trở luôn là vấn đề khó khăn. Tôi đã nghiên cứu và chế tạo ra Mộc Lưu Mã - một loại xe tự động có thể vận chuyển hàng hóa qua những con đường khó đi mà không cần người điều khiển. Điều này đã giải quyết được vấn đề hậu cần quan trọng cho quân đội.",
+    "lesson": "Khi gặp khó khăn, hãy suy nghĩ sáng tạo để tìm ra giải pháp mới. Đổi mới và cải tiến là chìa khóa để vượt qua những thách thức dường như không thể vượt qua.",
+    "tags": [
+      "innovation",
+      "problem_solving",
+      "creativity",
+      "efficiency"
+    ],
+    "target_audience": [
+      "students",
+      "engineers",
+      "innovators"
+    ],
+    "relevance_score": 0.85,
+    "source": "Tam Quốc Chí"
+  },
+  {
+    "id": "gc_005",
+    "character_id": "zhuge_liang",
+    "title": "Không Thành Kế",
+    "category": "psychology",
+    "content": "Khi Tư Mã Ý dẫn quân đến Tây Thành, tôi biết rằng lực lượng của ta ít hơn rất nhiều. Thay vì chạy trốn hay đầu hàng, tôi đã mở toang cửa thành, tự mình ngồi trên lâu thành gảy đàn. Tư Mã Ý nghi ngờ có phục binh nên không dám tấn công và rút quân. Đây là lần tôi sử dụng tâm lý học để biến yếu thế thành ưu thế.",
+    "lesson": "Đôi khi, việc hiểu tâm lý đối phương có thể quan trọng hơn sức mạnh thực tế. Sự tự tin và khéo léo có thể giúp ta vượt qua những tình huống tuyệt vọng.",
+    "tags": [
+      "psychology",
+      "confidence",
+      "strategy",
+      "mindgames"
+    ],
+    "target_audience": [
+      "students",
+      "negotiators",
+      "leaders"
+    ],
+    "relevance_score": 0.9,
+    "source": "Tam Quốc Diễn Nghĩa"
+  },
+  {
+    "id": "gc_006",
+    "character_id": "zhuge_liang",
+    "title": "Dạy dỗ Mã Tô",
+    "category": "mentoring",
+    "content": "Mã Tô là một tướng tài nhưng có tính khí nóng nảy và hay khinh địch. Tôi đã kiên nhẫn dạy dỗ, không chỉ truyền đạt kiến thức quân sự mà còn giúp anh ta hiểu được tầm quan trọng của việc kiềm chế cảm xúc và tôn trọng kẻ thù. Qua thời gian, Mã Tô đã trở thành một trong những tướng giỏi nhất của Thục Hán.",
+    "lesson": "Việc đào tạo và phát triển người khác đòi hỏi kiên nhẫn và sự hiểu biết sâu sắc về tính cách từng người. Không ai sinh ra đã hoàn hảo, mọi người đều có thể tiến bộ nếu được hướng dẫn đúng cách.",
+    "tags": [
+      "mentoring",
+      "patience",
+      "development",
+      "leadership"
+    ],
+    "target_audience": [
+      "teachers",
+      "managers",
+      "parents"
+    ],
+    "relevance_score": 0.85,
+    "source": "Tam Quốc Chí"
+  },
+  {
+    "id": "gc_007",
+    "character_id": "zhuge_liang",
+    "title": "Xuất Sư Biểu",
+    "category": "responsibility",
+    "content": "Trước khi xuất quân Bắc phạt lần cuối, tôi đã viết 'Xuất Sư Biểu' để bày tỏ lòng trung thành và quyết tâm với Hậu Chủ Lưu Thiện. Trong biểu văn, tôi nhấn mạnh: 'Thần thụ mệnh chi nhật, trạm thực bất an, dạ bất năng mai' - từ ngày nhận lệnh, tôi ăn không ngon, ngủ không yên. Tôi coi việc hoàn thành sứ mệnh phục hưng Hán thất như trách nhiệm thiêng liêng của đời mình.",
+    "lesson": "Khi đã nhận trách nhiệm, phải thực hiện đến cùng với sự tận tâm tuyệt đối. Trách nhiệm không chỉ là nghĩa vụ mà còn là danh dự của một người.",
+    "tags": [
+      "responsibility",
+      "dedication",
+      "loyalty",
+      "commitment"
+    ],
+    "target_audience": [
+      "students",
+      "professionals",
+      "leaders"
+    ],
+    "relevance_score": 0.95,
+    "source": "Tam Quốc Chí"
+  },
+  {
+    "id": "gc_008",
+    "character_id": "zhuge_liang",
+    "title": "Quản lý Thành Đô",
+    "category": "administration",
+    "content": "Khi được giao nhiệm vụ quản lý Thành Đô và vùng Ích Châu, tôi đã thực hiện nhiều cải cách: khuyến khích sản xuất nông nghiệp, xây dựng hệ thống thủy lợi, cải thiện giáo dục, thiết lập chế độ thuế khóa công bằng. Tôi luôn nhớ rằng: 'Dân vi quý, xã tắc thứ chi, quân vi khinh' - Dân là quý nhất, đất nước đứng thứ hai, vua chúa là nhẹ nhất.",
+    "lesson": "Lãnh đạo thực sự là phục vụ người dân. Mọi chính sách và quyết định phải hướng đến lợi ích của cộng đồng, không phải cá nhân.",
+    "tags": [
+      "administration",
+      "service",
+      "people_first",
+      "governance"
+    ],
+    "target_audience": [
+      "leaders",
+      "managers",
+      "public_servants"
+    ],
+    "relevance_score": 0.9,
+    "source": "Tam Quốc Chí"
+  }
+]
