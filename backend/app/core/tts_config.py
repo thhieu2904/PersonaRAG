@@ -11,7 +11,7 @@ class TTSConfig:
     
     # Đường dẫn cơ bản
     BASE_PATH = Path(__file__).resolve().parent.parent.parent
-    F5_TTS_PATH = BASE_PATH / "F5-TTS-Vietnamese-100h"
+    CLONE_VOICE_PATH = BASE_PATH / "app" / "services" / "cloneVoice"
     AUDIO_SAMPLES_DIR = BASE_PATH / "data" / "audio_samples"
     TEMP_AUDIO_DIR = BASE_PATH / "temp_audio"
     

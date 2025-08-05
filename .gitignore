@@ -118,7 +118,7 @@ docker-volumes/
 backend/data/training/*/
 !backend/data/training/*/.gitkeep
 
-# F5-TTS model files
-backend/F5-TTS-Vietnamese-100h/models/
-backend/F5-TTS-Vietnamese-100h/checkpoints/
-backend/F5-TTS-Vietnamese-100h/outputs/
+# F5-TTS model files in new location
+backend/app/services/cloneVoice/models/
+backend/app/services/cloneVoice/checkpoints/
+backend/app/services/cloneVoice/outputs/
