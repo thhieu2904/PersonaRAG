@@ -6,7 +6,7 @@
   height: 100vh;
   max-width: 1200px;
   margin: 0 auto;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1332bbff 0%, #afa4bbff 100%);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -25,7 +25,7 @@
 
 .character-selector select {
   padding: 0.5rem 1rem;
-  border: 2px solid #667eea;
+  border: 2px solid #2545d2ff;
   border-radius: 8px;
   background: white;
   font-size: 1rem;
@@ -36,7 +36,7 @@
 
 .character-selector select:focus {
   outline: none;
-  border-color: #764ba2;
+  border-color: #ca2a2aff;
   box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.2);
 }
 
@@ -151,7 +151,7 @@
 }
 
 .message.user .message-content {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2612c1ff 0%, #9b8cabff 100%);
   color: white;
   margin-left: 1rem;
 }
@@ -188,7 +188,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #667eea;
+  background: #002fffff;
   animation: typing 1.4s infinite ease-in-out;
 }
 
@@ -244,7 +244,7 @@
 
 .input-container textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #062ddeff;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
 }
 

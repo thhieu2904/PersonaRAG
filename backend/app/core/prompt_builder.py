@@ -3,6 +3,7 @@
 """
 Prompt Builder cho hệ thống RAG
 Xây dựng và quản lý các prompt cho các nhân vật khác nhau
+Tích hợp với Advanced Prompt Builder cho Qwen2.5-Instruct
 """
 
 import re
@@ -10,6 +11,7 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime
 
 from app.models.characters import Character, CharacterType
+from .advanced_prompt_builder import get_qwen_prompt_builder
 
 
 class PromptTemplate:
@@ -29,11 +31,49 @@ class PromptTemplate:
 
 
 class CharacterPromptBuilder:
-    """Builder for character-specific prompts"""
+    """Builder for character-specific prompts - Enhanced with Qwen2.5 optimization"""
     
     def __init__(self):
         self.base_templates = self._load_base_templates()
         self.character_specific_templates = self._load_character_templates()
+        self.qwen_builder = get_qwen_prompt_builder()  # Advanced builder for Qwen2.5
+    
+    def build_optimized_prompt(
+        self,
+        character: Character,
+        user_question: str,
+        relevant_contexts: List[Dict[str, Any]] = None,
+        conversation_history: List[Dict[str, str]] = None,
+        style: str = "comprehensive"
+    ) -> tuple[str, str]:
+        """
+        Build optimized prompt for Qwen2.5-Instruct
+        Returns: (system_prompt, user_prompt)
+        """
+        # Sử dụng advanced prompt builder cho Qwen2.5
+        system_prompt = self.qwen_builder.build_system_prompt(character)
+        user_prompt = self.qwen_builder.build_user_prompt(
+            character, 
+            user_question, 
+            relevant_contexts, 
+            conversation_history
+        )
+        
+        return system_prompt, user_prompt
+    
+    def validate_and_enhance_response(
+        self, 
+        response: str, 
+        character: Character
+    ) -> tuple[str, bool, List[str]]:
+        """
+        Validate và enhance phản hồi
+        Returns: (enhanced_response, is_valid, issues)
+        """
+        is_valid, issues = self.qwen_builder.validate_response(response, character)
+        enhanced_response = self.qwen_builder.enhance_response_with_character_traits(response, character)
+        
+        return enhanced_response, is_valid, issues
     
     def _load_base_templates(self) -> Dict[str, PromptTemplate]:
         """Load base prompt templates"""
