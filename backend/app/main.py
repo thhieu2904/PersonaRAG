@@ -69,6 +69,14 @@ api_v1_router.include_router(characters.router, prefix="/characters", tags=["Cha
 api_v1_router.include_router(voice.router, prefix="/voice", tags=["Voice"])
 api_v1_router.include_router(chat_ai.router, prefix="/ai", tags=["Chat AI"])
 
+# Import and include RAG router if available
+try:
+    from app.api.v1 import rag
+    api_v1_router.include_router(rag.router, prefix="/rag", tags=["RAG"])
+except ImportError as e:
+    print(f"⚠️  RAG router not available (missing dependencies): {e}")
+    print("   Install with: pip install -r requirements_rag.txt")
+
 app.include_router(api_v1_router, prefix="/api/v1")
 
 # --- 6. Tạo một endpoint gốc để kiểm tra ---

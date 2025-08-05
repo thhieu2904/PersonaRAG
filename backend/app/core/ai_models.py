@@ -17,6 +17,7 @@ except ImportError:
 
 from huggingface_hub import hf_hub_download
 import threading
+from .enhanced_config import create_optimized_model_config
 
 logger = logging.getLogger(__name__)
 
@@ -29,17 +30,17 @@ class ChatMessage:
 
 @dataclass
 class ModelConfig:
-    """Configuration for AI model"""
+    """Configuration for AI model - Optimized for RTX 3060 6GB"""
     model_name: str = "gaianet/Qwen2.5-7B-Instruct-GGUF"
-    model_file: str = "Qwen2.5-7B-Instruct-Q4_K_M.gguf"  # Q4_K_M cho RTX 3060 6GB
-    context_length: int = 4096  # Giảm xuống để phù hợp với 6GB VRAM
-    max_tokens: int = 512
-    temperature: float = 0.7
-    top_p: float = 0.95
+    model_file: str = "Qwen2.5-7B-Instruct-Q4_K_M.gguf"
+    context_length: int = 3072  # Reduced for stability with RAG contexts
+    max_tokens: int = 400  # Optimized for character responses
+    temperature: float = 0.8
+    top_p: float = 0.9
     top_k: int = 40
-    repeat_penalty: float = 1.1
-    n_gpu_layers: int = 25  # Số lớp chạy trên GPU (điều chỉnh theo VRAM)
-    n_threads: int = 8  # Cho 12700H
+    repeat_penalty: float = 1.15
+    n_gpu_layers: int = 25  # Optimized for RTX 3060 6GB
+    n_threads: int = 8
     use_mmap: bool = True
     use_mlock: bool = False
     verbose: bool = False
@@ -48,8 +49,14 @@ class ChatAI:
     """Main Chat AI class using GGUF models"""
     
     def __init__(self, config: Optional[ModelConfig] = None):
-        self.config = config or ModelConfig()
-        self.model: Optional[Llama] = None
+        # Sử dụng enhanced config nếu không có config được cung cấp
+        if config is None:
+            enhanced_config = create_optimized_model_config()
+            self.config = ModelConfig(**enhanced_config)
+        else:
+            self.config = config
+            
+        self.model = None  # Type: Optional[Llama]
         self.is_loaded = False
         self.conversation_history: List[ChatMessage] = []
         self._lock = threading.Lock()
@@ -162,6 +169,17 @@ class ChatAI:
                 
                 # Format conversation
                 prompt = self._format_conversation(self.conversation_history)
+                
+                # Check prompt length to avoid context overflow
+                if len(prompt) > self.config.context_length * 3:  # Rough token estimate
+                    logger.warning(f"Prompt too long ({len(prompt)} chars), truncating history")
+                    # Keep only system prompt + last 2 exchanges
+                    recent_history = []
+                    if self.conversation_history[0].role == "system":
+                        recent_history.append(self.conversation_history[0])
+                    recent_history.extend(self.conversation_history[-3:])  # Last user + assistant + current user
+                    self.conversation_history = recent_history
+                    prompt = self._format_conversation(self.conversation_history)
                 
                 logger.info(f"Sending prompt to model (length: {len(prompt)} chars)")
                 

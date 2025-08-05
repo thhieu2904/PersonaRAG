@@ -28,8 +28,8 @@ aiofiles = "*"
 transformers = ">=4.0.0"
 vinorm = "*"
 cached_path = "*"
-huggingface_hub = "*"
-accelerate = ">=0.33.0"
+huggingface_hub = "<0.20.0"
+accelerate = "~0.25.00"
 vocos = "*"
 x_transformers = ">=1.31.14"
 librosa = "*"
@@ -43,7 +43,7 @@ zhconv = "*"
 zhon = "*"
 
 # Thư viện khoa học dữ liệu
-numpy = "*"
+numpy = "~1.26.4"
 pandas = "^1.5.3"
 scipy = "*"
 torchdiffeq = "*"
@@ -58,7 +58,7 @@ torchaudio = { version = "2.3.1+cu121", source = "pytorch-cu121" }
 torchvision = { version = "0.18.1+cu121", source = "pytorch-cu121" }
 
 wandb = "^0.21.0"
-datasets = "^2.20.0"
+datasets = "~2.16.0"
 
 # --- Additional TTS dependencies ---
 # Quantization & Optimization
@@ -83,7 +83,7 @@ tqdm = ">=4.65.0"
 # Model & Data handling
 safetensors = "*"
 transformers-stream-generator = "*"
-faster-whisper = "==0.10.1"
+faster-whisper = ">=0.10.1"
 
 # Visualization
 matplotlib = "*"
@@ -96,6 +96,13 @@ pyaudio = "*"
 funasr = "*"
 jiwer = "*"
 modelscope = "*"
+langchain = "^0.3.27"
+langchain-community = "^0.3.27"
+faiss-cpu = "^1.11.0.post1"
+sentence-transformers = "2.2.2"
+pypdf = "^5.9.0"
+chromadb = "^1.0.15"
+llama-cpp-python = "^0.3.14"
 
 [build-system]
 requires = ["poetry-core"]
