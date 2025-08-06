@@ -48,6 +48,27 @@ backend/models/chat/
 backend/models/chat/*.gguf
 backend/models/chat/*.bin
 backend/models/chat/*.safetensors
+
+# Test artifacts và development files
+backend/test_*.py.bak
+backend/*_analysis.py.bak
+backend/cleanup_*.py
+
+# Temporary files
+backend/temp_*
+backend/*.tmp
+
+# Database và caches
+backend/data/chroma_db/
+backend/models/cache/
+
+# Logs
+backend/logs/*.log
+*.log
+
+# Environment files
+.env.local
+.env.development
 backend/models/voice_profiles/
 backend/logs/
 *.log
@@ -118,7 +139,7 @@ docker-volumes/
 backend/data/training/*/
 !backend/data/training/*/.gitkeep
 
-# F5-TTS model files
-backend/F5-TTS-Vietnamese-100h/models/
-backend/F5-TTS-Vietnamese-100h/checkpoints/
-backend/F5-TTS-Vietnamese-100h/outputs/
+# F5-TTS model files in new location
+backend/app/services/cloneVoice/models/
+backend/app/services/cloneVoice/checkpoints/
+backend/app/services/cloneVoice/outputs/

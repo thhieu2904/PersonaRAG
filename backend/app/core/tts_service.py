@@ -1,26 +1,27 @@
-# backend/app/core/tts_service.py (Đã cập nhật)
+# backend/app/core/tts_service.py (Sử dụng cloneVoice)
 import os
 import sys
 import tempfile
 import logging
 from pathlib import Path
 
-# Thêm đường dẫn đến F5-TTS-Vietnamese-100h
-current_dir = Path(__file__).resolve().parent.parent.parent
-f5_tts_path = current_dir / "F5-TTS-Vietnamese-100h"
-sys.path.insert(0, str(f5_tts_path))
+# Thêm đường dẫn đến cloneVoice
+current_dir = Path(__file__).resolve().parent.parent
+clonevoice_path = current_dir / "services" / "cloneVoice"
+sys.path.insert(0, str(clonevoice_path))
 
 # Import config
 from .tts_config import TTSConfig
 
-# Thư viện F5-TTS
+# Thư viện standard
 from huggingface_hub import login
 from cached_path import cached_path
 from vinorm import TTSnorm
 import soundfile as sf
 
-from f5_tts.model import DiT
-from f5_tts.infer.utils_infer import (
+# Import từ cloneVoice
+from model import DiT
+from infer.utils_infer import (
     load_vocoder,
     load_model,
     preprocess_ref_audio_text,
@@ -111,28 +112,68 @@ class TTSService:
         text = text.replace('"', "")
         return " ".join(text.split())
 
+    def _manual_vietnamese_normalize(self, text: str) -> str:
+        """Chuẩn hóa văn bản tiếng Việt thủ công khi TTSnorm không hoạt động."""
+        # Các quy tắc cơ bản để chuẩn hóa văn bản tiếng Việt
+        
+        # Chuẩn hóa dấu câu
+        text = text.replace("…", "...")
+        text = text.replace("–", "-")
+        text = text.replace("—", "-")
+        text = text.replace(""", '"')
+        text = text.replace(""", '"')
+        text = text.replace("'", "'")
+        text = text.replace("'", "'")
+        
+        # Chuẩn hóa khoảng trắng
+        text = " ".join(text.split())
+        
+        # Đảm bảo dấu câu có khoảng trắng phù hợp
+        text = text.replace(" ,", ",")
+        text = text.replace(" .", ".")
+        text = text.replace(" !", "!")
+        text = text.replace(" ?", "?")
+        text = text.replace(" :", ":")
+        text = text.replace(" ;", ";")
+        
+        # Thêm khoảng trắng sau dấu câu nếu cần
+        import re
+        text = re.sub(r'([,.!?:;])([^\s])', r'\1 \2', text)
+        
+        return text.strip()
+
     def _normalize_vietnamese_text(self, text: str) -> str:
-        """Chuẩn hóa văn bản tiếng Việt cho TTS với fix encoding."""
+        """Chuẩn hóa văn bản tiếng Việt cho TTS với fallback cho Windows."""
         try:
-            # Fix encoding issue cho Windows
+            # Thử TTSnorm trước
             import sys
             if sys.platform == "win32":
-                # Thử encode/decode để tránh lỗi charmap
+                # Windows: Kiểm tra xem TTSnorm có hoạt động không
                 try:
-                    text.encode('utf-8').decode('utf-8')
+                    # Test với một câu ngắn trước
+                    test_result = TTSnorm("xin chào")
+                    # Nếu thành công, dùng TTSnorm cho văn bản chính
                     normalized_text = TTSnorm(text)
-                    logger.info(f"Đã chuẩn hóa văn bản tiếng Việt: '{text}' -> '{normalized_text}'")
+                    logger.info(f"TTSnorm thành công: '{text}' -> '{normalized_text}'")
                     return normalized_text
-                except (UnicodeError, UnicodeEncodeError, UnicodeDecodeError):
-                    logger.warning(f"TTSnorm encoding issue với Windows. Sử dụng văn bản gốc.")
-                    return text.strip()
+                except Exception as ttsnorm_error:
+                    logger.warning(f"TTSnorm lỗi trên Windows: {ttsnorm_error}. Chuyển sang manual normalization.")
+                    # Fallback sang manual normalization
+                    normalized_text = self._manual_vietnamese_normalize(text)
+                    logger.info(f"Manual normalization: '{text}' -> '{normalized_text}'")
+                    return normalized_text
             else:
+                # Linux/macOS: Dùng TTSnorm bình thường
                 normalized_text = TTSnorm(text)
-                logger.info(f"Đã chuẩn hóa văn bản tiếng Việt: '{text}' -> '{normalized_text}'")
+                logger.info(f"TTSnorm (Unix): '{text}' -> '{normalized_text}'")
                 return normalized_text
+                
         except Exception as e:
-            logger.warning(f"Không thể chuẩn hóa văn bản với TTSnorm: {e}. Sử dụng văn bản gốc.")
-            return text.strip()
+            logger.warning(f"Lỗi tổng quát khi normalize văn bản: {e}. Dùng manual fallback.")
+            # Final fallback
+            normalized_text = self._manual_vietnamese_normalize(text)
+            logger.info(f"Final fallback normalization: '{text}' -> '{normalized_text}'")
+            return normalized_text
 
     def add_character_voice(self, character_name: str, reference_audio_path: str):
         """Lưu đường dẫn đến file audio mẫu cho một nhân vật."""

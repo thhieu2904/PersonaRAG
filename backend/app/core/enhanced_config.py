@@ -21,14 +21,14 @@ class EnhancedModelConfig:
     
     # Memory optimization for RTX 3060 6GB
     context_length: int = 4096  # Tăng context cho conversation dài
-    max_tokens: int = 512       # Đủ cho phản hồi chi tiết
+    max_tokens: int = 800       # Tăng lên để tránh cắt phản hồi giữa chừng
     n_gpu_layers: int = 28      # Tối ưu cho 6GB VRAM
     
     # Generation parameters for roleplay
-    temperature: float = 0.8    # Tăng creativity cho roleplay
-    top_p: float = 0.9         # Cân bằng creativity và consistency
-    top_k: int = 40
-    repeat_penalty: float = 1.15  # Tránh lặp lại
+    temperature: float = 0.6    # Giảm temperature để ổn định hơn, tránh hallucination
+    top_p: float = 0.85         # Giảm top_p để focus hơn
+    top_k: int = 30             # Giảm top_k để tránh random responses
+    repeat_penalty: float = 1.1  # Giảm repeat penalty
     
     # Performance
     n_threads: int = 8         # Cho 12700H
@@ -42,8 +42,8 @@ class CharacterRoleplayConfig:
     """Cấu hình cho roleplay nhân vật"""
     
     # Response requirements
-    min_response_length: int = 150    # Tối thiểu 150 từ
-    max_response_length: int = 600    # Tối đa 600 từ
+    min_response_length: int = 200    # Tối thiểu 200 từ để có chiều sâu
+    max_response_length: int = 800    # Tối đa 800 từ phù hợp với max_tokens mới
     required_address: str = "chủ công"  # Xưng hô bắt buộc
     
     # Validation settings
@@ -178,12 +178,12 @@ class EnhancedSystemConfig:
         # Conservative settings for stable performance
         self.model_config.n_gpu_layers = 25      # An toàn cho 6GB
         self.model_config.context_length = 3072  # Reduce nếu cần
-        self.model_config.max_tokens = 400       # Đủ cho most cases
+        self.model_config.max_tokens = 600       # Tăng lên để tránh cắt phản hồi
         
         # Optimize for roleplay
-        self.model_config.temperature = 0.8
-        self.model_config.top_p = 0.9
-        self.model_config.repeat_penalty = 1.15
+        self.model_config.temperature = 0.6  # Giảm để ổn định
+        self.model_config.top_p = 0.85
+        self.model_config.repeat_penalty = 1.1
         
         print("✅ Optimized configuration for RTX 3060 6GB")
     

@@ -294,37 +294,26 @@ class RAGAgent:
     ) -> str:
         """Generate prompt for the character-based response"""
         
-        # Format contexts
-        context_text = ""
-        if relevant_contexts:
-            context_text = "\n\nThông tin liên quan từ sử sách:\n"
-            for ctx in relevant_contexts:
-                context_text += f"- {ctx['content']}\n"
+        # ⚠️ DEPRECATED: Chuyển sang sử dụng QwenPromptBuilder để đảm bảo xưng hô nhất quán
+        from app.core.advanced_prompt_builder import get_qwen_prompt_builder
         
-        prompt = f"""Bạn là {character.name} ({character.full_name}), {character.description}.
+        prompt_builder = get_qwen_prompt_builder()
+        
+        # Sử dụng advanced prompt builder với validation nghiêm ngặt
+        system_prompt = prompt_builder.build_system_prompt(character)
+        user_prompt = prompt_builder.build_user_prompt(
+            character,
+            user_question,
+            relevant_contexts,
+            conversation_history=None
+        )
+        
+        # Kết hợp system và user prompt cho RAG endpoint
+        combined_prompt = f"""{system_prompt}
 
-Thông tin về bạn:
-- Triều đại: {character.dynasty}
-- Thời kỳ sống: {character.period}
-- Đặc điểm: {', '.join(character.personality_traits)}
-- Chuyên môn: {', '.join(character.expertise)}
-- Phong cách tư vấn: {character.advice_style}
-- Phong cách nói: {character.speaking_style}
-
-Một số câu nói nổi tiếng của bạn:
-{chr(10).join(f'- "{quote}"' for quote in character.famous_quotes)}
-
-{context_text}
-
-Câu hỏi từ một sinh viên: "{user_question}"
-
-Hãy trả lời như chính {character.name}, dựa trên trí tuệ và kinh nghiệm của mình. 
-Đưa ra lời khuyên thiết thực, có thể tham khảo các tích sử hoặc câu chuyện liên quan nếu phù hợp.
-Giữ phong cách nói chuyện đặc trưng của {character.name}.
-
-Lời khuyên của {character.name}:"""
-
-        return prompt
+{user_prompt}"""
+        
+        return combined_prompt
     
     async def get_advice(
         self, 
@@ -345,7 +334,7 @@ Lời khuyên của {character.name}:"""
                 top_k=self.top_k_results
             )
             
-            # Generate prompt
+            # Generate prompt với advanced builder
             prompt = self.generate_character_prompt(
                 character=character,
                 user_question=request.user_question,
@@ -354,6 +343,16 @@ Lời khuyên của {character.name}:"""
             
             # Get response from AI
             advice = chat_ai.chat(prompt)
+            
+            # ✅ THÊM VALIDATION như trong character_chat_service
+            from app.core.advanced_prompt_builder import get_qwen_prompt_builder
+            prompt_builder = get_qwen_prompt_builder()
+            
+            is_valid, issues = prompt_builder.validate_response(advice, character)
+            enhanced_advice = prompt_builder.enhance_response_with_character_traits(advice, character)
+            
+            if not is_valid:
+                logger.warning(f"RAG response validation issues: {issues}")
             
             # Calculate response time
             response_time = asyncio.get_event_loop().time() - start_time
@@ -375,7 +374,7 @@ Lời khuyên của {character.name}:"""
             response = AdviceResponse(
                 character_id=character.id,
                 character_name=character.name,
-                advice=advice,
+                advice=enhanced_advice,  # Sử dụng enhanced response
                 relevant_stories=relevant_story_ids,
                 confidence_score=confidence_score,
                 sources_used=sources_used,
