@@ -48,6 +48,27 @@ backend/models/chat/
 backend/models/chat/*.gguf
 backend/models/chat/*.bin
 backend/models/chat/*.safetensors
+
+# Test artifacts và development files
+backend/test_*.py.bak
+backend/*_analysis.py.bak
+backend/cleanup_*.py
+
+# Temporary files
+backend/temp_*
+backend/*.tmp
+
+# Database và caches
+backend/data/chroma_db/
+backend/models/cache/
+
+# Logs
+backend/logs/*.log
+*.log
+
+# Environment files
+.env.local
+.env.development
 backend/models/voice_profiles/
 backend/logs/
 *.log

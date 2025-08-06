@@ -54,14 +54,16 @@ class TTSConfig:
         "stress_scale": 0.9,  # Softer stress on syllables
     }
     
-    # Character-specific voice settings
+    # Character-specific voice settings - Enhanced for natural speech
     CHARACTER_VOICE_SETTINGS = {
         "gia_cat_luong": {
-            "speed": 0.75,  # Slower, more contemplative
-            "temperature": 0.65,  # More consistent tone
-            "pause_scale": 1.4,  # Longer pauses for wisdom
-            "stress_scale": 0.85,  # Gentle delivery
-            "pitch_scale": 0.95,  # Slightly lower pitch
+            "speed": 0.6,  # Slower, more contemplative
+            "temperature": 0.55,  # More consistent tone  
+            "pause_scale": 1.8,  # Longer pauses for wisdom and breath
+            "stress_scale": 0.75,  # Gentle, authoritative delivery
+            "pitch_scale": 0.92,  # Lower pitch for gravitas
+            "emotion_scale": 1.2,  # Enhanced emotional expression
+            "breath_scale": 1.5,  # Natural breathing patterns
         },
         "tu_ma_y": {
             "speed": 0.85,  # Slightly faster, more energetic

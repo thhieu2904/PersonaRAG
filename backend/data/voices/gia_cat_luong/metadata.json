@@ -96,6 +96,17 @@
     "save_steps": 500
   },
   "created_at": "2025-08-02",
-  "version": "2.0",
-  "auto_generated": true
+  "version": "2.1",
+  "auto_generated": true,
+  "voice_settings": {
+    "speed": 0.6,
+    "temperature": 0.55,
+    "pause_scale": 1.8,
+    "stress_scale": 0.75,
+    "pitch_scale": 0.92,
+    "emotion_scale": 1.2,
+    "breath_scale": 1.5,
+    "description": "Giọng nói chậm rãi, thâm thúy của quân sư thông thái"
+  },
+  "updated_at": "2025-08-06T20:29:02.810114"
 }

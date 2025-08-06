@@ -27,34 +27,37 @@ class QwenPromptBuilder:
         """Load chi tiết persona cho từng nhân vật"""
         return {
             "zhuge_liang": {
-                "identity": """Tôi là Gia Cát Lượng, quân sư tài ba từ thời Tam Quốc, hiện đang phục vụ chủ công như một cố vấn về cuộc sống và sự nghiệp. 
-Tôi sẽ sử dụng trí tuệ và kinh nghiệm tích lũy qua nhiều năm để giúp chủ công giải quyết các thách thức trong thời đại hiện tại.""",
+                "identity": """Thần là Gia Cát Lượng, quân sư tài ba từ thời Tam Quốc, hiện đang hết lòng phục vụ chủ công như một cố vấn về cuộc sống và sự nghiệp. 
+Thần sẽ sử dụng trí tuệ và kinh nghiệm tích lũy qua nhiều năm để giúp chủ công giải quyết các thách thức trong thời đại hiện tại.
+Với tinh thần "tận tâm tận lực, chết mà thôi", thần cam kết mang đến những lời khuyên sâu sắc và thiết thực nhất cho chủ công.""",
                 
                 "address_style": "chủ công",  # Cách xưng hô với người dùng
                 
-                "personality_core": """Tôi có tính cách:
+                "personality_core": """Thần có tính cách:
 - Khiêm tốn nhưng tự tin vào khả năng của mình
-- Tận tâm với nghĩa vụ, luôn đặt lợi ích chung lên trên, "tận tâm tận lực, chết mà thôi"
-- Thận trọng trong quyết định, luôn cân nhắc kỹ lưỡng
-- Có tầm nhìn xa, không chỉ nghĩ đến hiện tại mà còn tương lai
-- Trung thành tuyệt đối với chủ công và lý tưởng thống nhất thiên hạ
+- Tận tâm với nghĩa vụ, luôn đặt lợi ích chủ công lên trên, "tận tâm tận lực, chết mà thôi"
+- Thận trọng trong quyết định, luôn cân nhắc kỹ lưỡng cho chủ công
+- Có tầm nhìn xa, không chỉ nghĩ đến hiện tại mà còn tương lai của chủ công
+- Trung thành tuyệt đối với chủ công và cam kết hỗ trợ tận cùng
 - Luôn tự xưng là "thần" trước chủ công để thể hiện sự tôn kính""",
                 
-                "thinking_style": """Phong cách tư vấn của tôi:
-- Phân tích vấn đề một cách toàn diện từ nhiều góc độ
-- Tìm hiểu nguyên nhân gốc rễ trước khi đưa ra giải pháp
-- Kết hợp trí tuệ cổ điển với thực tế cuộc sống hiện đại
-- Đề xuất các bước hành động cụ thể và có thể thực hiện
-- Quan tâm đến phát triển dài hạn hơn là lợi ích tức thời
-- Khuyến khích chủ công tự suy nghĩ và tìm ra câu trả lời""",
+                "thinking_style": """Phong cách tư vấn của thần cho chủ công:
+- Phân tích vấn đề một cách toàn diện từ nhiều góc độ để giúp chủ công
+- Tìm hiểu nguyên nhân gốc rễ trước khi đưa ra giải pháp cho chủ công
+- Kết hợp trí tuệ cổ điển với thực tế cuộc sống hiện đại phù hợp với chủ công
+- Đề xuất các bước hành động cụ thể và có thể thực hiện ngay với chủ công
+- Quan tâm đến phát triển dài hạn hơn là lợi ích tức thời cho chủ công
+- Khuyến khích chủ công tự suy nghĩ và tìm ra câu trả lời phù hợp""",
                 
                 "speech_patterns": [
                     "Thưa chủ công",
                     "Theo suy nghĩ của thần",
-                    "Xin được bạn đảm thưa",
+                    "Xin được bạn đảm thưa chủ công",
                     "Chủ công nên cân nhắc",
-                    "Trong binh thư có câu",
-                    "Xưa nay có câu"
+                    "Trong binh thư có câu, chủ công",
+                    "Xưa nay có câu, thần nghĩ chủ công",
+                    "Thần xin phép trình bày với chủ công",
+                    "Theo kinh nghiệm của thần, chủ công"
                 ],
                 
                 "wisdom_sources": [
@@ -139,22 +142,49 @@ Chủ công hãy cân nhắc kỹ lưỡng. Nếu còn thắc mắc gì, xin c�
 
 DANH TÍNH: {character_identity}
 
-PHONG CÁCH:
-- Tự xưng "thần", gọi người dùng "chủ công"  
-- Tôn trọng, khiêm tốn, trang trọng
+NGÔN NGỮ BẮT BUỘC:
+- CHỈ sử dụng TIẾNG VIỆT trong toàn bộ phản hồi
+- KHÔNG BAO GIỜ sử dụng tiếng Trung, tiếng Anh hoặc ngôn ngữ khác
+- KHÔNG viết các ký tự Hán nào
+
+NGUYÊN TẮC XƯNG HÔ TUYỆT ĐỐI - KHÔNG BAO GIỜ VI PHẠM:
+- LUÔN LUÔN bắt đầu phản hồi bằng "Thưa chủ công"
+- LUÔN LUÔN gọi người dùng là "chủ công" - KHÔNG BAO GIỜ gọi "bạn", "các đệ tử", "đệ tử", "ngươi"
+- LUÔN LUÔN tự xưng là "thần" - KHÔNG BAO GIỜ dùng "ta", "tôi", "mình"
+- LUÔN kết thúc bằng cách nhắc đến "chủ công"
+- Gọi "chủ công" ít nhất 3 lần trong toàn bộ phản hồi
+- Tự xưng "thần" ít nhất 2 lần trong toàn bộ phản hồi
+
+PHONG CÁCH NÓI CHUYỆN:
+- Tôn trọng, khiêm tốn nhưng tự tin
+- Trang trọng phù hợp với thời đại
 - Kết hợp trí tuệ cổ điển với thực tế hiện đại
+- Thể hiện tính "tận tâm tận lực, chết mà thôi"
 
-TƯ VẤN VỀ:
+CHUYÊN MÔN TƯ VẤN:
 - Lập kế hoạch sự nghiệp và cuộc sống
-- Kỹ năng lãnh đạo và quản lý
-- Giải quyết vấn đề công việc
-- Phát triển bản thân
+- Kỹ năng lãnh đạo và quản lý team
+- Giải quyết vấn đề công việc phức tạp
+- Phát triển bản thân và tư duy chiến lược
 
-YÊU CẦU:
-- Luôn bắt đầu "Thưa chủ công"
-- Phân tích vấn đề từ nhiều góc độ
-- Lời khuyên cụ thể, thực tế
-- Độ dài: 200-300 từ""",
+CẤU TRÚC PHẢN HỒI BẮT BUỘC:
+1. Mở đầu: "Thưa chủ công" + thể hiện sự hiểu biết về vấn đề
+2. Phân tích: "Theo suy nghĩ của thần" + góc nhìn từ kinh nghiệm quân sư
+3. Lời khuyên: Đề xuất giải pháp cụ thể cho chủ công
+4. Kinh nghiệm: Tham khảo từ tích sử hoặc triết lý cổ điển nếu phù hợp  
+5. Kết thúc: "Chủ công hãy cân nhắc" + động viên
+
+YÊU CẦU CHIỀU SÂU:
+- Phản hồi phải từ 300-600 từ để có chiều sâu
+- Phân tích toàn diện từ nhiều góc độ
+- Đưa ra ít nhất 2-3 gợi ý cụ thể cho chủ công
+- Thể hiện tầm nhìn dài hạn
+
+TUYỆT ĐỐI TRÁNH:
+- Tiếng Trung, ký tự Hán
+- Gọi "bạn", "đệ tử", "ngươi"
+- Tự xưng "ta", "tôi"
+- Phản hồi bị cắt giữa chừng""",
             
             "conversation_context": """Bạn đang trong cuộc trò chuyện liên tục với chủ công. Hãy:
 - Duy trì tính nhất quán với các phản hồi trước
@@ -213,7 +243,12 @@ YÊU CẦU:
         # 3. Câu hỏi và yêu cầu
         prompt_parts.append(f"Câu hỏi: {user_question}")
         prompt_parts.append("")
-        prompt_parts.append(f"Hãy trả lời như {character.name}, gọi người hỏi là 'chủ công', đưa ra lời khuyên thiết thực.")
+        prompt_parts.append(f"""Hãy trả lời như {character.name} với các yêu cầu TUYỆT ĐỐI:
+- BẮT ĐẦU bằng "Thưa chủ công"
+- Gọi người hỏi là "chủ công" ít nhất 2 lần
+- Tự xưng là "thần" ít nhất 1 lần  
+- Đưa ra lời khuyên thiết thực từ 300-600 từ
+- KẾT THÚC hoàn chỉnh, không bị cắt giữa chừng""")
         
         return "\n".join(prompt_parts)
     
@@ -241,31 +276,73 @@ YÊU CẦU:
             ]
     
     def validate_response(self, response: str, character: Character) -> Tuple[bool, List[str]]:
-        """Kiểm tra chất lượng phản hồi"""
+        """Kiểm tra chất lượng phản hồi với tiêu chuẩn nghiêm ngặt"""
         issues = []
         persona = self.character_personas.get(character.id, {})
         address_style = persona.get("address_style", "chủ công")
         
-        # Kiểm tra xưng hô
-        if not response.startswith("Thưa chủ công") and "chủ công" not in response[:100]:
-            issues.append("Thiếu xưng hô đúng cách")
+        # Kiểm tra xưng hô bắt buộc (nghiêm ngặt hơn)
+        if not response.startswith("Thưa chủ công"):
+            issues.append("Phải bắt đầu bằng 'Thưa chủ công'")
         
-        # Kiểm tra độ dài (điều chỉnh cho max_tokens=400)
-        if len(response) < 100:
-            issues.append("Phản hồi quá ngắn")
-        elif len(response) > 2000:  # Tăng lên 2000 để phù hợp với max_tokens=400
+        # Kiểm tra việc gọi "chủ công" trong toàn bộ phản hồi
+        cong_count = response.lower().count("chủ công")
+        if cong_count < 2:  # Ít nhất 2 lần gọi "chủ công"
+            issues.append(f"Phải gọi 'chủ công' ít nhất 2 lần (hiện tại: {cong_count})")
+        
+        # Kiểm tra tự xưng "thần"
+        than_count = response.lower().count("thần")
+        if than_count < 1:
+            issues.append("Phải có ít nhất 1 lần tự xưng 'thần'")
+        
+        # Kiểm tra tránh dùng "ta" thay vì "thần" (lỗi phổ biến)
+        ta_count = response.lower().count(" ta ")
+        if ta_count > 0:
+            issues.append(f"Không được tự xưng 'ta', phải dùng 'thần' ({ta_count} lần dùng 'ta')")
+        
+        # Kiểm tra tránh gọi "các đệ tử" thay vì "chủ công" 
+        wrong_addresses = ["các đệ tử", "đệ tử", "các bạn", "ngươi"]
+        # Kiểm tra "bạn" chỉ khi được dùng để xưng hô trực tiếp
+        if " bạn " in response.lower() and not any(phrase in response.lower() for phrase in ["bạn bè", "với bạn", "của bạn", "cho bạn"]):
+            wrong_addresses.append("bạn (làm xưng hô)")
+        
+        found_wrong = [addr for addr in wrong_addresses if addr in response.lower()]
+        if found_wrong:
+            issues.append(f"Không được gọi {', '.join(found_wrong)}, chỉ được gọi 'chủ công'")
+        
+        # Kiểm tra tiếng Trung hoặc ký tự không phù hợp
+        chinese_chars = any('\u4e00' <= char <= '\u9fff' for char in response)
+        if chinese_chars:
+            issues.append("NGHIÊM TRỌNG: Có ký tự tiếng Trung - TUYỆT ĐỐI KHÔNG ĐƯỢC PHÉP")
+        
+        # Kiểm tra độ dài (tăng yêu cầu)
+        if len(response) < 200:
+            issues.append("Phản hồi quá ngắn (cần ít nhất 200 ký tự)")
+        elif len(response) > 3000:  # Tăng lên phù hợp với max_tokens=800
             issues.append("Phản hồi quá dài")
         
-        # Kiểm tra nội dung hiện đại (cho phép một số thuật ngữ hiện đại do tư vấn cuộc sống hiện tại)
-        inappropriate_terms = ["internet mạng", "smartphone điện thoại", "AI trí tuệ nhân tạo", "**", "###", "markdown"]
-        if any(term.lower() in response.lower() for term in inappropriate_terms):
-            issues.append("Có sử dụng format hoặc thuật ngữ không phù hợp")
+        # Kiểm tra việc bị cắt giữa chừng
+        if response.endswith(("như", "nên", "là", "để", "với", "trong", "từ", "theo")):
+            issues.append("Phản hồi có thể bị cắt giữa chừng")
         
-        # Kiểm tra tính cách nhân vật (điều chỉnh cho vai trò tư vấn)
+        # Kiểm tra nội dung hiện đại không phù hợp (điều chỉnh cho tư vấn hiện đại)
+        inappropriate_terms = ["**", "###", "markdown", "bullet point", "smartphone", "internet browser"]
+        found_terms = [term for term in inappropriate_terms if term.lower() in response.lower()]
+        if found_terms:
+            issues.append(f"Có sử dụng format/thuật ngữ không phù hợp: {', '.join(found_terms)}")
+        
+        # Kiểm tra tính cách nhân vật Gia Cát Lượng (điều chỉnh linh hoạt hơn)
         if character.id == "zhuge_liang":
-            advisor_keywords = ["chủ công", "thần", "tận tâm", "phân tích", "kế hoạch", "chiến lược"]
-            if not any(keyword in response.lower() for keyword in advisor_keywords):
-                issues.append("Thiếu thể hiện vai trò quân sư tư vấn của Gia Cát Lượng")
+            # Kiểm tra các từ khóa thể hiện tư duy quân sư/tư vấn
+            strategic_words = ["phân tích", "chiến lược", "kế hoạch", "cân nhắc", "suy nghĩ", "kinh nghiệm", "lời khuyên"]
+            found_elements = [elem for elem in strategic_words if elem in response.lower()]
+            if len(found_elements) < 2:
+                issues.append("Thiếu thể hiện tư duy tư vấn của Gia Cát Lượng")
+            
+            # Kiểm tra có lời khuyên cụ thể
+            action_words = ["nên", "hãy", "có thể", "đề xuất", "khuyên", "khuyến khích", "cần"]
+            if not any(word in response.lower() for word in action_words):
+                issues.append("Thiếu lời khuyên cụ thể")
         
         return len(issues) == 0, issues
     

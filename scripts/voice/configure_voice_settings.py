@@ -58,12 +58,14 @@ def get_default_settings_for_character(character_name: str) -> Dict[str, Any]:
     
     presets = {
         "gia_cat_luong": {
-            "speed": 0.75,  # Chậm rãi, thông thái
-            "temperature": 0.65,  # Ít biến đổi, ổn định
-            "pause_scale": 1.4,  # Nghỉ lâu giữa các câu
-            "stress_scale": 0.85,  # Nhẹ nhàng
-            "pitch_scale": 0.95,  # Hơi trầm
-            "description": "Giọng nói chậm rãi, thông thái của quân sư"
+            "speed": 0.6,  # Chậm rãi hơn, thông thái sâu sắc
+            "temperature": 0.55,  # Ổn định hơn
+            "pause_scale": 1.8,  # Nghỉ lâu hơn để thể hiện tính cách thâm thúy
+            "stress_scale": 0.75,  # Nhẹ nhàng, uy quyền
+            "pitch_scale": 0.92,  # Trầm hơn cho uy tín
+            "emotion_scale": 1.2,  # Thêm cảm xúc
+            "breath_scale": 1.5,  # Lấy hơi tự nhiên hơn
+            "description": "Giọng nói chậm rãi, thâm thúy của quân sư thông thái"
         },
         "tu_ma_y": {
             "speed": 0.85,  # Nhanh hơn, năng động

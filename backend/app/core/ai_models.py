@@ -34,11 +34,11 @@ class ModelConfig:
     model_name: str = "gaianet/Qwen2.5-7B-Instruct-GGUF"
     model_file: str = "Qwen2.5-7B-Instruct-Q4_K_M.gguf"
     context_length: int = 3072  # Reduced for stability with RAG contexts
-    max_tokens: int = 400  # Optimized for character responses
-    temperature: float = 0.8
-    top_p: float = 0.9
-    top_k: int = 40
-    repeat_penalty: float = 1.15
+    max_tokens: int = 600  # Tăng lên để tránh cắt phản hồi giữa chừng
+    temperature: float = 0.6  # Giảm để tránh hallucination và tiếng Trung
+    top_p: float = 0.85
+    top_k: int = 30
+    repeat_penalty: float = 1.1
     n_gpu_layers: int = 25  # Optimized for RTX 3060 6GB
     n_threads: int = 8
     use_mmap: bool = True
